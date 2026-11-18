@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>2027 Facility Inspection Plan</title>
+<meta name="theme-color" content="#0f3d5e">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Inspection 2027">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{--bg:#f4f6f8;--c:#fff;--t:#14212b;--m:#5d6b78;--p:#0f3d5e;--ln:#dde3e8;--ok:#1b7f3b;--wip:#b26a00;--bad:#c62828}
+@media(prefers-color-scheme:dark){:root{--bg:#10171d;--c:#1a242c;--t:#e8eef2;--m:#98a6b2;--ln:#2c3a45;--p:#2a6f9e}}
+*{box-sizing:border-box}
+body{margin:0;font:15px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--t);padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+header{background:var(--p);color:#fff;padding:12px 14px 8px}
+header h1{margin:0;font-size:18px}header small{opacity:.85}
+.pb{height:5px;background:rgba(255,255,255,.25);border-radius:3px;margin-top:8px}.pb i{display:block;height:100%;background:#7ee08f;border-radius:3px}
+nav{display:flex;background:var(--c);border-bottom:1px solid var(--ln);position:sticky;top:0;z-index:5}
+nav button{flex:1;padding:12px;border:0;background:none;color:var(--m);font-size:15px;font-weight:600;border-bottom:3px solid transparent}
+nav button.on{color:var(--p);border-color:var(--p)}
+main{max-width:860px;margin:0 auto;padding:10px}
+.ex{background:var(--c);border:1px solid var(--ln);border-radius:10px;padding:10px;margin-bottom:10px}
+.ex .g{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}
+button.bt{padding:10px;border-radius:8px;border:1px solid var(--p);background:var(--p);color:#fff;font-size:14px;font-weight:600}
+button.bt.o{background:none;color:var(--p)}button:disabled{opacity:.4}
+.card{background:var(--c);border:1px solid var(--ln);border-radius:10px;margin-bottom:8px;overflow:hidden}
+.hd{display:flex;align-items:center;gap:10px;padding:10px}
+.hd input[type=checkbox]{width:22px;height:22px;flex:none}
+.t{flex:1;min-width:0}.t small{display:block;color:var(--m)}
+.b{font-size:12px;padding:3px 8px;border-radius:12px;background:var(--ln);white-space:nowrap}
+.b.ok{background:var(--ok);color:#fff}.b.wip{background:var(--wip);color:#fff}.b.bad{background:var(--bad);color:#fff}
+.bar{height:4px;background:var(--ln)}.bar i{display:block;height:100%;background:var(--ok)}
+.bd{padding:10px;border-top:1px solid var(--ln)}
+.bd p{margin:0 0 8px;color:var(--m)}
+label.l{display:block;font-size:12px;color:var(--m);margin:8px 0 2px}
+input[type=text],input[type=date],select,textarea{width:100%;padding:9px;border:1px solid var(--ln);border-radius:8px;background:var(--bg);color:var(--t);font:inherit}
+.ck{display:flex;gap:8px;align-items:flex-start;padding:7px 0;border-bottom:1px solid var(--ln)}
+.ck input{width:20px;height:20px;flex:none;margin-top:1px}
+table{width:100%;border-collapse:collapse;font-size:14px}td,th{padding:7px;border-bottom:1px solid var(--ln);text-align:left;vertical-align:top}
+h3{margin:14px 0 6px}
+.fi{padding:10px;border-bottom:1px solid var(--ln)}
+</style></head><body>
+<header><h1>2027 Facility Surveillance &amp; Inspection Plan</h1><small>Security Department / Facility Management · works offline</small>
+<div class="pb"><i id="bar"></i></div><div id="sum" style="margin-top:6px;font-size:13px"></div></header>
+<nav><button onclick="tab=0;R()">Schedule</button><button onclick="tab=1;R()">Findings</button><button onclick="tab=2;R()">Info</button></nav>
+<main>
+<div class="ex"><b>Export</b> <small id="ns" style="color:var(--m)"></small>
+<div class="g"><button class="bt" onclick="X('xlsx',1)">Total plan · Excel</button><button class="bt" onclick="X('pdf',1)">Total plan · PDF</button>
+<button class="bt o" id="sx" onclick="X('xlsx',0)">Selected · Excel</button><button class="bt o" id="sp" onclick="X('pdf',0)">Selected · PDF</button></div>
+<div style="margin-top:6px"><button class="bt o" style="padding:6px 10px;font-size:13px" onclick="SA()">Select all / none</button></div></div>
+<div id="main"></div></main>
+<script>
+const S={
+A:["Perimeter fences, walls and security barriers","Damaged fences, holes and unauthorised openings","Gates, access roads and boundary demarcations","Suspicious movements around the facility","Overgrown vegetation (hiding places)","External lighting and security visibility"],
+B:["Main gates, secondary entrances and emergency exits","Visitor registration and identification","Staff, contractor and visitor movement","Vehicle search and screening","Access cards, visitor passes, authorisation documents","Unauthorised entry, tailgating, suspicious deliveries"],
+C:["CCTV cameras and coverage areas","Camera positioning and blind spots","Recording and playback functionality","Monitoring screens and control-room equipment","Recording storage and backup","Defective cameras reported"],
+D:["Offices, warehouses, workshops, storage areas","Restricted areas and sensitive installations","Doors, windows, locks and barriers","Broken ceilings, damaged windows, compromised entry points","Unattended equipment and suspicious objects","Emergency exits and escape routes"],
+E:["Fire extinguishers and accessibility","Fire alarms and emergency notification","Fire hydrants, hose reels, emergency equipment","Escape routes and assembly points unobstructed","Emergency lighting and exit signage","Fire hazards and unsafe practices reported"],
+F:["Vehicle parking zones","Abandoned or suspicious vehicles","Vehicle entry and exit records","Lighting and surveillance coverage","Unauthorised parking / blocked emergency access"],
+G:["Electrical installations and generator areas","Water supply installations and pump rooms","Transformer areas and distribution points","Fuel storage and sensitive utilities","Exposed cables, leaks and other hazards"],
+H:["Waste disposal points","Abandoned materials and obstructions","Drainage channels and waterlogged areas","Vegetation around sensitive locations","Environmental conditions compromising security"]};
+const M=[
+["January","Perimeter and Boundary Security","Inspect fences, walls, gates, boundary lines and external lighting.",S.A],
+["February","Access Control and Gate Management","Assess visitor registration, vehicle screening and entry authorisation.",S.B],
+["March","CCTV and Electronic Surveillance","Test cameras, recording systems, monitoring screens and blind spots.",S.C],
+["April","Building and Structural Security","Inspect doors, windows, locks, roofs, ceilings and restricted areas.",S.D],
+["May","Fire and Emergency Preparedness","Inspect fire equipment, emergency exits, alarms and evacuation routes.",S.E],
+["June","Warehouse and Asset Protection","Inspect storage facilities, inventory security and sensitive equipment.",["Storage facilities","Inventory security","Sensitive equipment"]],
+["July","Security Personnel and Patrol Effectiveness","Assess patrol coverage, shift handovers, post discipline and supervision.",["Patrol coverage","Shift handovers","Post discipline","Supervision"]],
+["August","Parking and Vehicle Security","Inspect vehicle screening, parking zones, access records and lighting.",S.F],
+["September","Utilities and Critical Infrastructure","Inspect generator houses, electrical installations, fuel areas and water facilities.",S.G],
+["October","Vulnerability and Risk Assessment","Conduct comprehensive security vulnerability inspections and identify emerging risks.",["Comprehensive vulnerability inspections","Identify emerging risks",...S.H]],
+["November","Emergency Response and Incident Readiness","Assess emergency procedures, communication systems and response capabilities.",["Emergency procedures","Communication systems","Response capabilities"]],
+["December","Comprehensive Annual Security Audit","Conduct a full facility inspection, evaluate performance and prepare the 2028 improvement plan.",["Full facility inspection","Performance evaluation","Prepare 2028 improvement plan"]]];
+const FQ=[["Routine security patrols","Every shift"],["Gate and access-control inspections","Daily"],["CCTV operational checks","Daily"],["Perimeter inspections","Daily"],["Critical facility inspections","Weekly"],["General facility inspection","Monthly"],["Random and unannounced inspections","At least twice monthly"],["Security personnel performance assessment","Monthly"],["Security vulnerability assessment","Quarterly"],["Emergency preparedness review","Quarterly"],["Comprehensive facility security audit","Annually"]];
+const KP=[["Completion of scheduled inspections","100%"],["Daily perimeter inspection compliance","100%"],["Daily CCTV operational checks","100%"],["Monthly inspection reports submitted","100%"],["Critical findings escalated immediately","100%"],["High-risk corrective actions completed within agreed deadlines","At least 95%"],["Monthly security personnel assessments","100%"],["Quarterly vulnerability assessments","4 annually"],["Annual comprehensive security audit","1"],["Inspection findings properly documented","100%"]];
+const SV=[["Critical","Immediate danger to life, serious breach or major exposure of critical assets. Immediate intervention."],["High","Significant vulnerability requiring urgent corrective action."],["Medium","Deficiency that may become an incident if not addressed."],["Low","Minor observation requiring routine attention."]];
+const PH=[["Phase 1: Establishment (Jan-Mar)","Baseline assessments, registers and checklists, priority vulnerabilities."],["Phase 2: Strengthening (Apr-Jun)","Building and emergency security, infrastructure deficiencies, asset protection."],["Phase 3: Performance Evaluation (Jul-Sep)","Personnel and patrol effectiveness, critical infrastructure, vulnerability assessments."],["Phase 4: Consolidation and Review (Oct-Dec)","Risk assessment, closure of findings, KPI evaluation, 2028 plan."]];
+
+let D={m:{},f:[]};try{D=JSON.parse(localStorage.getItem("fip27"))||D}catch(e){}
+const save=()=>{try{localStorage.setItem("fip27",JSON.stringify(D))}catch(e){}};
+const mo=i=>D.m[i]||(D.m[i]={st:"Not started",date:"",by:"",note:"",d:[]});
+const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])).replace(/[\x00-\x08\x0b\x0c\x0e-\x1f]/g,"");
+const $=id=>document.getElementById(id);
+let tab=0,open=-1,sel=new Set(),fm=0;
+const cls=s=>s==="Completed"||s==="Closed"?"ok":s==="In progress"?"wip":"";
+const opts=(a,v)=>a.map(x=>`<option${x===v?" selected":""}>${x}</option>`).join("");
+const ST=["Not started","In progress","Completed"],SVL=["Critical","High","Medium","Low"],FS=["Open","In progress","Closed"];
+
+function R(){
+ const dn=M.filter((_,i)=>mo(i).st==="Completed").length,of=D.f.filter(f=>f.st!=="Closed").length;
+ $("sum").innerHTML=`<b>${dn}/12</b> months completed · <b>${of}</b> open findings`;
+ $("bar").style.width=dn/12*100+"%";
+ document.querySelectorAll("nav button").forEach((b,i)=>b.classList.toggle("on",i===tab));
+ $("main").innerHTML=[rS,rF,rI][tab]();
+ $("ns").textContent=sel.size?`· ${sel.size} month(s) selected`:"· select months below for a selected plan";
+ $("sx").disabled=$("sp").disabled=!sel.size;
+}
+function rS(){return M.map((x,i)=>{const s=mo(i),n=x[3].length,c=s.d.filter(Boolean).length;
+ return `<div class="card"><div class="hd"><input type="checkbox" ${sel.has(i)?"checked":""} onchange="T(${i})" aria-label="Select ${x[0]}">
+ <div class="t" onclick="O(${i})"><b>${x[0]}</b><small>${x[1]} · ${c}/${n}</small></div><span class="b ${cls(s.st)}">${s.st}</span></div>
+ <div class="bar"><i style="width:${c/n*100}%"></i></div>
+ ${open===i?`<div class="bd"><p>${x[2]}</p>
+ <label class="l">Status</label><select onchange="U(${i},'st',this.value,1)">${opts(ST,s.st)}</select>
+ <label class="l">Inspection date</label><input type="date" value="${esc(s.date)}" oninput="U(${i},'date',this.value)">
+ <label class="l">Inspector / team</label><input type="text" value="${esc(s.by)}" oninput="U(${i},'by',this.value)">
+ <label class="l">Checklist</label>${x[3].map((t,j)=>`<label class="ck"><input type="checkbox" ${s.d[j]?"checked":""} onchange="CK(${i},${j},this.checked)"><span>${t}</span></label>`).join("")}
+ <label class="l">Notes</label><textarea rows="3" oninput="U(${i},'note',this.value)">${esc(s.note)}</textarea>
+ <p style="margin-top:10px"><button class="bt" onclick="fm=${i};tab=1;R()">+ Add finding for ${x[0]}</button></p></div>`:""}</div>`}).join("")}
+function rF(){return `<div class="card"><div class="bd" style="border:0"><b>New finding</b>
+ <label class="l">Month</label><select id="fmn">${M.map((x,i)=>`<option value="${i}"${i===fm?" selected":""}>${x[0]}</option>`).join("")}</select>
+ <label class="l">Area / location</label><input type="text" id="fl">
+ <label class="l">Description</label><textarea id="fd" rows="3"></textarea>
+ <label class="l">Severity</label><select id="fs">${opts(SVL,"Medium")}</select>
+ <label class="l">Responsible department / person</label><input type="text" id="fr">
+ <label class="l">Completion deadline</label><input type="date" id="fdu">
+ <p><button class="bt" onclick="AF()">Save finding</button></p></div></div>
+ ${D.f.length?D.f.map((f,k)=>`<div class="card fi"><div style="display:flex;gap:8px;justify-content:space-between"><b>${M[f.m][0]} · ${esc(f.loc)||"-"}</b><span class="b ${f.sev==="Critical"||f.sev==="High"?"bad":""}">${f.sev}</span></div>
+ <div>${esc(f.desc)}</div><small style="color:var(--m)">Responsible: ${esc(f.resp)||"-"} · Due: ${esc(f.due)||"-"}</small>
+ <div style="display:flex;gap:8px;margin-top:6px"><select onchange="D.f[${k}].st=this.value;save();R()">${opts(FS,f.st)}</select><button class="bt o" onclick="DF(${k})">Delete</button></div></div>`).join(""):"<p style='color:var(--m)'>No findings recorded yet.</p>"}`}
+function rI(){const t=(a,h)=>`<table><tr>${h.map(x=>`<th>${x}</th>`).join("")}</tr>${a.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join("")}</tr>`).join("")}</table>`;
+ return `<div class="card"><div class="bd" style="border:0"><h3 style="margin-top:0">Inspection frequency</h3>${t(FQ,["Activity","Frequency"])}
+ <h3>KPIs</h3>${t(KP,["Indicator","Target"])}<h3>Finding classification</h3>${t(SV,["Risk","Meaning"])}<h3>Implementation phases</h3>${t(PH,["Phase","Focus"])}
+ <h3>Install</h3><p>Android (Chrome): menu → Install app.<br>iPhone (Safari): Share → Add to Home Screen.<br>Desktop (Chrome/Edge): install icon in the address bar. After the first load the app works offline; data is saved on this device.</p>
+ <button class="bt o" onclick="if(confirm('Delete ALL saved data on this device?')){D={m:{},f:[]};save();sel.clear();R()}">Reset all data</button></div></div>`}
+
+function T(i){sel.has(i)?sel.delete(i):sel.add(i);R()}
+function SA(){sel.size===12?sel.clear():M.forEach((_,i)=>sel.add(i));R()}
+function O(i){open=open===i?-1:i;R()}
+function U(i,k,v,r){mo(i)[k]=v;save();if(r)R()}
+function CK(i,j,v){mo(i).d[j]=v;save();R()}
+function AF(){const d=$("fd").value.trim();if(!d)return alert("Please enter a description.");
+ D.f.push({m:+$("fmn").value,loc:$("fl").value,desc:d,sev:$("fs").value,resp:$("fr").value,due:$("fdu").value,st:"Open"});save();R()}
+function DF(k){if(confirm("Delete this finding?")){D.f.splice(k,1);save();R()}}
+
+/* ---------- export data ---------- */
+function data(ix){const sch=[["Month","Focus","Key activities","Status","Date","Inspector","Checklist done","Notes"]],ck=[["Month","Checklist item","Done"]],fd=[["No.","Month","Area / location","Description","Severity","Responsible","Deadline","Status"]];
+ ix.forEach(i=>{const x=M[i],s=mo(i);sch.push([x[0],x[1],x[2],s.st,s.date,s.by,s.d.filter(Boolean).length+"/"+x[3].length,s.note]);x[3].forEach((t,j)=>ck.push([x[0],t,s.d[j]?"Yes":"No"]))});
+ D.f.filter(f=>ix.includes(f.m)).forEach((f,k)=>fd.push([k+1,M[f.m][0],f.loc,f.desc,f.sev,f.resp,f.due,f.st]));
+ return {Schedule:sch,Checklist:ck,Findings:fd,Frequency:[["Activity","Frequency"],...FQ],KPIs:[["Performance indicator","Target"],...KP]}}
+
+/* ---------- XLSX (no libraries) ---------- */
+const enc=new TextEncoder();let CT=null;
+function crc(b){if(!CT){CT=[];for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;CT[n]=c>>>0}}
+ let r=-1;for(let i=0;i<b.length;i++)r=CT[(r^b[i])&255]^(r>>>8);return(r^-1)>>>0}
+function zip(files,type){const P=[],C=[];let o=0;const u16=v=>[v&255,v>>8&255],u32=v=>[v&255,v>>8&255,v>>16&255,v>>>24&255];
+ for(const[n,s]of files){const nb=enc.encode(n),d=enc.encode(s),c=crc(d);
+ const h=[0x50,0x4b,3,4,20,0,0,0,0,0,0,0,0,0,...u32(c),...u32(d.length),...u32(d.length),...u16(nb.length),0,0];
+ P.push(new Uint8Array(h),nb,d);
+ C.push(new Uint8Array([0x50,0x4b,1,2,20,0,20,0,0,0,0,0,0,0,0,0,...u32(c),...u32(d.length),...u32(d.length),...u16(nb.length),0,0,0,0,0,0,0,0,0,0,0,0,...u32(o)]),nb);
+ o+=h.length+nb.length+d.length}
+ const cl=C.reduce((a,b)=>a+b.length,0);
+ return new Blob([...P,...C,new Uint8Array([0x50,0x4b,5,6,0,0,0,0,...u16(files.length),...u16(files.length),...u32(cl),...u32(o),0,0])],{type})}
+function sheet(r){const col=n=>String.fromCharCode(65+n);
+ return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><cols><col min="1" max="8" width="30" customWidth="1"/></cols><sheetData>${r.map((row,y)=>`<row r="${y+1}">${row.map((v,x)=>`<c r="${col(x)}${y+1}" t="inlineStr"><is><t xml:space="preserve">${esc(v)}</t></is></c>`).join("")}</row>`).join("")}</sheetData></worksheet>`}
+function xlsx(d){const n=Object.keys(d),H='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>',R_="http://schemas.openxmlformats.org/officeDocument/2006/relationships",PR="http://schemas.openxmlformats.org/package/2006/relationships";
+ const f=[["[Content_Types].xml",`${H}<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>${n.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join("")}</Types>`],
+ ["_rels/.rels",`${H}<Relationships xmlns="${PR}"><Relationship Id="rId1" Type="${R_}/officeDocument" Target="xl/workbook.xml"/></Relationships>`],
+ ["xl/workbook.xml",`${H}<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="${R_}"><sheets>${n.map((s,i)=>`<sheet name="${s}" sheetId="${i+1}" r:id="rId${i+1}"/>`).join("")}</sheets></workbook>`],
+ ["xl/_rels/workbook.xml.rels",`${H}<Relationships xmlns="${PR}">${n.map((_,i)=>`<Relationship Id="rId${i+1}" Type="${R_}/worksheet" Target="worksheets/sheet${i+1}.xml"/>`).join("")}</Relationships>`],
+ ...n.map((s,i)=>[`xl/worksheets/sheet${i+1}.xml`,sheet(d[s])])];
+ return zip(f,"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")}
+
+/* ---------- PDF (no libraries) ---------- */
+function pdf(ix,label){const W=595,H=842,mg=40,P=[];let pg=[],y=H-mg;
+ const q=s=>String(s==null?"":s).replace(/[^\x20-\xff]/g,"-").replace(/[\\()]/g,"\\$&");
+ const np=()=>{if(pg.length)P.push(pg.join("\n"));pg=[];y=H-mg};
+ function add(t,sz,b,ind){ind=ind||0;const mx=Math.floor((W-2*mg-ind)/(sz*(b?.58:.52)));const w=[];let ln="";
+  String(t).split(" ").forEach(x=>{while(x.length>mx){if(ln){w.push(ln);ln=""}w.push(x.slice(0,mx));x=x.slice(mx)}
+   if((ln+" "+x).trim().length>mx){w.push(ln);ln=x}else ln=(ln+" "+x).trim()});w.push(ln);
+  w.forEach(l=>{if(y<mg+14)np();pg.push(`BT /F${b?2:1} ${sz} Tf ${mg+ind} ${y} Td (${q(l)}) Tj ET`);y-=sz*1.35})}
+ const gap=n=>{y-=n};
+ add("2027 Facility Surveillance and Inspection Plan",16,1);add("Security Department / Facility Management",10);add(label+" | Generated "+new Date().toLocaleDateString(),9);gap(8);
+ add("MONTHLY SCHEDULE AND CHECKLISTS",12,1);gap(4);
+ ix.forEach(i=>{const x=M[i],s=mo(i);if(y<mg+90)np();gap(6);
+  add(x[0]+" - "+x[1],11,1);add(x[2],9,0,8);
+  add(`Status: ${s.st} | Date: ${s.date||"-"} | Inspector: ${s.by||"-"}`,9,0,8);
+  x[3].forEach((t,j)=>add(`[${s.d[j]?"x":" "}] ${t}`,9,0,16));
+  if(s.note)add("Notes: "+s.note,9,0,8);
+  D.f.filter(f=>f.m===i).forEach(f=>add(`FINDING (${f.sev}, ${f.st}): ${f.desc} | Location: ${f.loc||"-"} | Responsible: ${f.resp||"-"} | Due: ${f.due||"-"}`,9,1,8))});
+ gap(10);add("INSPECTION FREQUENCY",12,1);gap(2);FQ.forEach(r=>add(r[0]+": "+r[1],9,0,8));
+ gap(10);add("KEY PERFORMANCE INDICATORS",12,1);gap(2);KP.forEach(r=>add(r[0]+": "+r[1],9,0,8));
+ gap(10);add("FINDING CLASSIFICATION",12,1);gap(2);SV.forEach(r=>add(r[0]+": "+r[1],9,0,8));
+ gap(14);add("PREPARED BY: Security Department      NAME: ____________________      SIGNATURE: ____________________",9);
+ add("REVIEWED BY: ____________________      APPROVED BY: ____________________      DATE: ____________",9);
+ np();
+ const o=["<</Type/Catalog/Pages 2 0 R>>",null,"<</Type/Font/Subtype/Type1/BaseFont/Helvetica/Encoding/WinAnsiEncoding>>","<</Type/Font/Subtype/Type1/BaseFont/Helvetica-Bold/Encoding/WinAnsiEncoding>>"],kids=[];
+ P.forEach((c,i)=>{c+=`\nBT /F1 8 Tf ${mg} 20 Td (Page ${i+1} of ${P.length}) Tj ET`;const pi=o.length+1;kids.push(pi+" 0 R");
+  o.push(`<</Type/Page/Parent 2 0 R/MediaBox[0 0 ${W} ${H}]/Resources<</Font<</F1 3 0 R/F2 4 0 R>>>>/Contents ${pi+1} 0 R>>`,`<</Length ${c.length}>>\nstream\n${c}\nendstream`)});
+ o[1]=`<</Type/Pages/Kids[${kids.join(" ")}]/Count ${kids.length}>>`;
+ let s="%PDF-1.4\n";const xr=[];o.forEach((b,i)=>{xr.push(s.length);s+=`${i+1} 0 obj\n${b}\nendobj\n`});
+ const xp=s.length;s+=`xref\n0 ${o.length+1}\n0000000000 65535 f \n`+xr.map(v=>String(v).padStart(10,"0")+" 00000 n \n").join("")+`trailer\n<</Size ${o.length+1}/Root 1 0 R>>\nstartxref\n${xp}\n%%EOF`;
+ return new Blob([Uint8Array.from(s,c=>c.charCodeAt(0)&255)],{type:"application/pdf"})}
+
+function dl(b,n){const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=n;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},5000)}
+function X(kind,all){const ix=all?[...Array(12).keys()]:[...sel].sort((a,b)=>a-b);if(!ix.length)return;
+ const tag=all?"Total-Plan":"Selected-Plan",label=all?"Total plan (Jan-Dec 2027)":"Selected plan: "+ix.map(i=>M[i][0]).join(", ");
+ try{kind==="xlsx"?dl(xlsx(data(ix)),`Facility-Inspection-${tag}-2027.xlsx`):dl(pdf(ix,label),`Facility-Inspection-${tag}-2027.pdf`)}catch(e){alert("Export failed: "+e.message)}}
+
+R();
+if("serviceWorker"in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+</script></body></html>
